@@ -27,13 +27,26 @@
 \tableofcontents{}
 
 \section{Introduction}
-Laser scanning technologies have been in the forefront of many fields
-when it comes to acquiring real life volumetric data. Indeed, not many
-other technologies can provide the same amount of precision and
-accuracy in a short amount of time. This is why they can be relied
-upon in time critical tasks such as autonomous driving and in
-situations where you need millimeter level of measurements, in civil
-engineering for instance.
+
+\subsection{General intro on lidar and how it is generalized in
+  forestry}
+Light Detection and Ranging (lidar) uses laser technologies to probe
+surrounding objects to identity their 3D position and shape. They have
+led to major advances to model complex 3D architectures (todo: cite),
+civil engineering structures \cite{wang2018} while also being a key
+factor for the advancement of autonomous driving \cite{li2020}. Lidars
+can also be attached to aircrafts in order to obtain data for large
+areas. These airborne laser scanners (ALS) can be used to obtain very
+precise terrain models when compared to traditional cameras
+\cite{baltsavias1999}. The same can be applied for vegetation modeling
+at the canopy level of forests. Although major drawbacks of that type
+of lidar includes the inability to reliably reach the lower part of
+the forest while also not being able to really capture the fine
+details of such complex environment. This is explained by the
+occulusion caused by top part of the canopy and the fact that the high
+alitudes causes high beam divergence.
+
+\subsection{MLS and TLS introduction}
 
 Another use case that can benefit greatly from this technology is
 forestry. Forestry researchers can be interested to seek a better
@@ -48,6 +61,9 @@ structure in its entirety would greatly simplify this task. Doing this
 estimation in three dimensions with lidar technology is precisely the
 aim of the L-Vox (\cite{nguyen2022}) software.
 
+
+\subsection{lidar limitations}
+
 L-Vox, when using multiple scans from a terrestrial laser scanner
 (TLS), yields accurate estimation of the Plant Area Density (PAD), an
 indicator of the amount of vegetation surface inside a volume. Since
@@ -56,6 +72,8 @@ based approach, in opposition to the object based approach which seeks
 to look at the individual object of interest (a tree for example) to
 estimate a value. This is advantageous when we seek to have a better
 understanding of the structure of the forest plot as whole.
+
+\subsection{How Lvox deals with these limitations}
 
 The mathematical framework used by L-Vox was first introduced by
 \cite{pimont2019}. It is based on a stochastic approach where the
@@ -68,6 +86,8 @@ beams is what is eventually used to estimate the PAD. Since we seek to
 estimate for a large area of interest, we need to discretize the area
 itself into multiple smaller volumes. This is why the estimation uses
 a three-dimensional grid of voxels.
+
+\subsection{Lvox objectives}
 
 L-Vox was developped in \texttt{C++} as a plugin inside the
 \textit{Computree} computing platform (\cite{computree}). This
@@ -130,6 +150,49 @@ tailored to the operational field of forestry research. This new
 version is more interoperable, simpler and faster in terms of
 computing time for researchers that have access to consumer grade
 hardware.
+
+\section{Theoriticals developments used in LVox}
+
+\subsection{Basic elements for LVox; TLS \& MLS geometry, vectors,
+  scanner’s position or trajectories}
+Décrire la géométrie de 2 LiDAR utilisés (TLS et MLS): donc pour
+quelques positions avec une diffusion dans un système de coordonnée
+radial, ou avec une diffusion organisée selon des vecteurs
+scanner-objet sur un trajectoire connue.
+
+\subsection{Inclure ici l’importance du RDI}
+Décrire les fondements du RDI et souligner comment Durrieu et
+al. («2007) on démontré comment ceci débiaise pour les effets de
+l’occlusion
+
+\subsection{Comment on passe du RDI au PAD}
+Cadre mathématique de Pimont et al. et de Soma et al.
+
+\subsection{Comment on passe du PAD à la biomasse}
+Décrire ici les facteurs de conversion de surface à masse qui
+s’appliquent selon l’objet: tige, branche ou feuillage.
+\subsection{Dealing with multiple unveiled details: lost rays, ??}
+Je ne sais pas si ce paragraphe sera utile, mais j’ai l’impression
+qu’il y aura plusieurs éléments fins à décrire pour assurer qu’on a
+tous les éléments théoriques en place pour ensuite parler des aspects
+algorithmiques de LVox2. Les éléments que j’ai en tête sont :
+\begin{itemize}
+\item Le choix d’inclure les tirs de toutes les positions du TLS pour
+  établir un PAD au lieu de considérer une seule position à la fois.
+
+\item Les considérations de voxels sphériques versus carrés (étude de
+  Grau et al., 2015?
+
+\item Utilisation des points d’une scène au lieu de considérer tous
+  les points émis (tirs perdus). Ici il faudrait spécifier que l’effet
+  de ce choix pourra être évalué à l’aide de LVox2 et des maquettes
+  (tree/scene models).
+
+\item Il faudrait regarrder le document initial de Johannie sur LVox1
+  où elle mentionne toutes les options disponibles.
+
+\end{itemize}
+\section{Implementation of LVox2}
 
 \bibliography{memoire}
 \bibliographystyle{apacite}
