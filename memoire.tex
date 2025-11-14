@@ -1,0 +1,136 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{authblk}
+\usepackage{apacite}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Improvements over LVox: an algorithm for estimating forest
+  plot's biomass using point clouds}
+
+\author[1]{Félix Chabot}
+\author[2]{Richard Fournier}
+\author[1]{Toby Dylan Hocking}
+\author[2]{Camille Rouet}
+\author[2]{Amélie Juckler}
+\author[2]{Johannie Lemelin}
+\affil[1]{Département de sciences informatiques, Université de Sherbrooke}
+\affil[2]{Département de géomatique appliquée, Université de Sherbrooke}
+
+\begin{document}
+
+\maketitle{}
+
+\tableofcontents{}
+
+\section{Introduction}
+Laser scanning technologies have been in the forefront of many fields
+when it comes to acquiring real life volumetric data. Indeed, not many
+other technologies can provide the same amount of precision and
+accuracy in a short amount of time. This is why they can be relied
+upon in time critical tasks such as autonomous driving and in
+situations where you need millimeter level of measurements, in civil
+engineering for instance.
+
+Another use case that can benefit greatly from this technology is
+forestry. Forestry researchers can be interested to seek a better
+understanding of the distribution of forest element in space. To do
+so, they often resort to physical measurements. These tasks can be
+time-consuming, error-prone and in some cases even destructive. For
+example, in order to get a proper estimation of biomass, operators can
+be required to cut down a tree to then weight it afterwards. Given the
+fact that forest researchers are often interested in large forested
+areas, having an easier way to accurately quantify the forest
+structure in its entirety would greatly simplify this task. Doing this
+estimation in three dimensions with lidar technology is precisely the
+aim of the L-Vox (\cite{nguyen2022}) software.
+
+L-Vox, when using multiple scans from a terrestrial laser scanner
+(TLS), yields accurate estimation of the Plant Area Density (PAD), an
+indicator of the amount of vegetation surface inside a volume. Since
+it estimates for a discrete volume in space, This is known as an area
+based approach, in opposition to the object based approach which seeks
+to look at the individual object of interest (a tree for example) to
+estimate a value. This is advantageous when we seek to have a better
+understanding of the structure of the forest plot as whole.
+
+The mathematical framework used by L-Vox was first introduced by
+\cite{pimont2019}. It is based on a stochastic approach where the
+points in the point clouds are seen as statistical events. Two
+categories of estimators are defined, the ones that use the inversion
+of Beer-Lambert's law or the contact frequency, all of them are
+available inside L-Vox. The interaction between the amount of observed
+returns inside a given volume and how much it was explored by laser
+beams is what is eventually used to estimate the PAD. Since we seek to
+estimate for a large area of interest, we need to discretize the area
+itself into multiple smaller volumes. This is why the estimation uses
+a three-dimensional grid of voxels.
+
+L-Vox was developped in \texttt{C++} as a plugin inside the
+\textit{Computree} computing platform (\cite{computree}). This
+application platform can be used to do various operations on point
+clouds, which are mainly aimed at forestry. It is an open-source
+software built with the \texttt{QT} (\cite{QT}) framework to offer a
+graphical user interface. The interface contains a built-in
+visualization window which can be used to display the content of the
+point cloud and the various transformation steps that can be applied
+on it.
+
+Though \textit{Computree} offers a myriad of advantages for the
+researchers who uses it, from an operational standpoint it isn't
+ideal. Firstly, the graphical interface, while useful for developping
+new process chains for point cloud data, makes reusing an extisting
+one cumbersome. The user is expected to either change the values
+directly in the various modal windows before starting the processing,
+generate a new script per parameter that needs to be changed or with
+all the duplicated parameters of interest with their respective fixed
+values in a single script. All these operations require a lot of
+manual actions inside the graphical interface. \texttt{Computree} does
+offer a <<batch>> mode that doesn't need to be operated from with a
+graphical interface, but it requires a script that was generated with
+the interface beforehand.
+
+A common use case for operational research, or even for forest
+inventories, is to run the same computation on multiple files. Doing
+manual operations in the interface for every files be would be
+impractial, especially since it would not be unsual for operators to
+analyze close to a hundred files. This why the industry has shown a
+great interest for software solution that offer some sort of
+pipeline. For instance, one of the more widely use tool for processing
+point cloud data is the \texttt{R} package \texttt{lidR}
+(\cite{roussel2020}). Instead of having a graphical interface, this
+package provides a programming interface. Users are expected to write
+\texttt{R} code that in turn will compose their processing
+pipeline. For handling large amount of files, users can simply define
+the processing for one file and leverage the capabilities of the
+\texttt{R} language to reuse it for a collection of files. One benefit
+that \texttt{Computree} has over \texttt{lidR} is that it doesn't
+require the user to have prior programming knowledge. Although, it can
+be argued that all the benefits gained from the features of the
+programming language (reproducibility, interoperability,
+documentation, ect.) outweights the cost of entry in the long run.
+
+Another shortcoming of L-Vox is that computation, altough faster than
+the original implementation of the mathemical framework in MATLAB, can
+take several hours to finish if the requested voxel size is small
+enough. This is explained by the fact that L-Vox was not developped
+with the intent of being used operationally, but rather as a testing
+ground for the new estimation approach devised by
+\cite{pimont2019}. Many optimization approaches can be applied to the
+existing codebase to significantly reduce the processing time.
+
+In this article, we will explain how we managed to take the existing
+approach employed by L-Vox and make it accessible from both outside
+and inside \texttt{Computree} with the same underlying estimation
+approach using voxels. This is all in an effort to make L-Vox more
+tailored to the operational field of forestry research. This new
+version is more interoperable, simpler and faster in terms of
+computing time for researchers that have access to consumer grade
+hardware.
+
+\bibliography{memoire}
+\bibliographystyle{apacite}
+\end{document}
