@@ -39,57 +39,83 @@ can also be attached to aircrafts in order to obtain data for large
 areas. These airborne laser scanners (ALS) can be used to obtain very
 precise terrain models when compared to traditional cameras
 \cite{baltsavias1999}. The same can be applied for vegetation modeling
-at the canopy level of forests. Although major drawbacks of that type
-of lidar includes the inability to reliably reach the lower part of
-the forest while also not being able to really capture the fine
-details of such complex environment. This is explained by the
-occulusion caused by top part of the canopy and the fact that the high
-alitudes causes high beam divergence.
+at the canopy level of forests, making those types of scanners really
+desirable for foresters.
 
 \subsection{MLS and TLS introduction}
 
-Another use case that can benefit greatly from this technology is
-forestry. Forestry researchers can be interested to seek a better
-understanding of the distribution of forest element in space. To do
-so, they often resort to physical measurements. These tasks can be
-time-consuming, error-prone and in some cases even destructive. For
-example, in order to get a proper estimation of biomass, operators can
-be required to cut down a tree to then weight it afterwards. Given the
-fact that forest researchers are often interested in large forested
-areas, having an easier way to accurately quantify the forest
-structure in its entirety would greatly simplify this task. Doing this
-estimation in three dimensions with lidar technology is precisely the
-aim of the L-Vox (\cite{nguyen2022}) software.
+Although ALS are not perfect, they aren't really suited to reliably
+reach the lower part of the forest while also not being able to
+capture fine details of such complex environment. This is explained by
+the fact that the leaves on top of the forest are obscuring the
+underlying forest elements. High alitudes also causes a great amount
+of beam divergence, meaning that the beams are more akin to large
+cones than thin cylinders. To work at the scale of the smaller
+elements of the forest, it is better suited to use different types of
+lidar scanners. There is, for example, terrestrial laser scanners
+(TLS) which offers much finer beams when compared to ALS while
+providing a higher point density. They are also much smaller and
+lighter, enough so that a human can carry one. These scanners are
+stationary, they probe for material in a spherical manner following a
+fixed angular resolution.
 
+While more precise than ALS, TLS lacks mobility. In order to get a
+more accurate scan of an area with a TLS, it is often necessary to
+scan the same plot from multiple angles, a process often referred as
+multi-scans. In recent years, we've seen more commercially available
+lidars that offer hardware implemented simultaneous localization and
+mapping (SLAM) algorithms. Lidars enhanced with this technology are
+essentially registering points while keeping track of the trajectory
+that the operator took inside a single point cloud. These devices are
+known as mobile laser scanners (MLS). Since they are not stationary
+like TLS, they are inherently able to capture multiple angles of the
+same scene, making them very useful to probe complex scenes that would
+require a lot of manipulation with a TLS. This feature makes data
+acquisition much faster than TLS while retaining more fine details
+than an ALS would.
 
-\subsection{lidar limitations}
+\subsection{Lidar limitations}
 
-L-Vox, when using multiple scans from a terrestrial laser scanner
-(TLS), yields accurate estimation of the Plant Area Density (PAD), an
-indicator of the amount of vegetation surface inside a volume. Since
-it estimates for a discrete volume in space, This is known as an area
-based approach, in opposition to the object based approach which seeks
-to look at the individual object of interest (a tree for example) to
-estimate a value. This is advantageous when we seek to have a better
-understanding of the structure of the forest plot as whole.
+While all these types of lidar scanners try to solve different issues
+with data acquisition, they ultimately all suffer from the same two
+glaring issues. The first being occlusion. The light emitted from
+these scanners is typically either in the ultraviolet, visible or near
+infrared band. If an object is in the path of a laser beam, the light
+will reach the objects behind it. This is why ALS cannot reliably
+reach the understory of a forest and why it's common to use
+multi-scans to counteract this effet. The other issue is beam
+divergence. All lidars are affected from the fact that they don't
+emmit perfect beams, they ahgve a finite precision. This is most
+apparent with ALS where the size of the projected beams can reach
+several centimeters in diameter. TLS and MLS offers narrower beams
+that can reach level of precision in the milimeters (MLS bieng
+significantly more imprecise than TLS, but still better than ALS), but
+the footprint of the beams does get larger in the upper part of the
+cannopy.
 
 \subsection{How Lvox deals with these limitations}
 
-The mathematical framework used by L-Vox was first introduced by
-\cite{pimont2019}. It is based on a stochastic approach where the
-points in the point clouds are seen as statistical events. Two
-categories of estimators are defined, the ones that use the inversion
-of Beer-Lambert's law or the contact frequency, all of them are
-available inside L-Vox. The interaction between the amount of observed
-returns inside a given volume and how much it was explored by laser
-beams is what is eventually used to estimate the PAD. Since we seek to
-estimate for a large area of interest, we need to discretize the area
-itself into multiple smaller volumes. This is why the estimation uses
-a three-dimensional grid of voxels.
+To accurately estimate the 3d structure of a forest, it is then
+preferable to work with more precise tools such as MLS or TLS, but
+it's also necessary to take into account their inherent issues. This
+is what the LVox (\cite{nguyen2022}) software seeks to acheive. It
+uses several techniques to correctly estimate the forest structure
+based on the properties of TLS and MLS. It takes as an input point
+clouds obtained from such devices, and it outputs estimation of the
+Plant Area Density (PAD), an indicator of the amount of vegetation
+surface inside a volume. The volumes in question are represented as a
+3d grid of voxels, which serves as discrete divisions of the
+continuous space in which points resides. The discretization of space
+is necessary because LVox uses a stochastic approach where the points
+are seen as statistical events in 3d space. To account for occulsion,
+it computes how many points are contained inside a voxel in comparison
+to how much it was explored by rays emitted from a scanner. Taking
+into account this relationship helps with correcting biases induced by
+the scanners.
 
 \subsection{Lvox objectives}
 
-L-Vox was developped in \texttt{C++} as a plugin inside the
+LVox was developped in \texttt{C++} as a plugin inside the
 \textit{Computree} computing platform (\cite{computree}). This
 application platform can be used to do various operations on point
 clouds, which are mainly aimed at forestry. It is an open-source
@@ -133,19 +159,19 @@ be argued that all the benefits gained from the features of the
 programming language (reproducibility, interoperability,
 documentation, ect.) outweights the cost of entry in the long run.
 
-Another shortcoming of L-Vox is that computation, altough faster than
+Another shortcoming of LVox is that computation, altough faster than
 the original implementation of the mathemical framework in MATLAB, can
 take several hours to finish if the requested voxel size is small
-enough. This is explained by the fact that L-Vox was not developped
+enough. This is explained by the fact that LVox was not developped
 with the intent of being used operationally, but rather as a testing
 ground for the new estimation approach devised by
 \cite{pimont2019}. Many optimization approaches can be applied to the
 existing codebase to significantly reduce the processing time.
 
 In this article, we will explain how we managed to take the existing
-approach employed by L-Vox and make it accessible from both outside
+approach employed by LVox and make it accessible from both outside
 and inside \texttt{Computree} with the same underlying estimation
-approach using voxels. This is all in an effort to make L-Vox more
+approach using voxels. This is all in an effort to make LVox more
 tailored to the operational field of forestry research. This new
 version is more interoperable, simpler and faster in terms of
 computing time for researchers that have access to consumer grade
