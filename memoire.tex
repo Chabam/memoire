@@ -148,30 +148,73 @@ for this software solution to be easy to install, use and run on
 consumer grade hardware while keeping its original open-source
 approach.
 
-\subsection{Leftovers}
-It would not be unusual for operators to analyze close to a hundred
-files. Doing manual operations in the interface for all files would be
-impractical. This why the industry has shown a great interest for
-software solution that offer some sort of pipeline. For instance, one
-of the more widely use tool for processing point cloud data is the
-\texttt{R} package \texttt{lidR} (\cite{roussel2020}). Instead of
-having a graphical interface, this package provides a programming
-interface. Users are expected to write \texttt{R} code that in turn
-will compose their processing pipeline. For handling large amount of
-files, users can simply define the processing for one file and
-leverage the capabilities of the \texttt{R} language to reuse it for a
-collection of files. While \texttt{lidR} is popular for working with
-point clouds, it focuses on ALS data and generic operation on them,
-making it distinct from what LVox aims at doing.
+% \subsection{Leftovers}
+% It would not be unusual for operators to analyze close to a hundred
+% files. Doing manual operations in the interface for all files would be
+% impractical. This why the industry has shown a great interest for
+% software solution that offer some sort of pipeline. For instance, one
+% of the more widely use tool for processing point cloud data is the
+% \texttt{R} package \texttt{lidR} (\cite{roussel2020}). Instead of
+% having a graphical interface, this package provides a programming
+% interface. Users are expected to write \texttt{R} code that in turn
+% will compose their processing pipeline. For handling large amount of
+% files, users can simply define the processing for one file and
+% leverage the capabilities of the \texttt{R} language to reuse it for a
+% collection of files. While \texttt{lidR} is popular for working with
+% point clouds, it focuses on ALS data and generic operation on them,
+% making it distinct from what LVox aims at doing.
 
 \section{Theoriticals developments used in LVox}
 
 \subsection{Basic elements for LVox; TLS \& MLS geometry, vectors,
   scanner’s position or trajectories}
-Décrire la géométrie de 2 LiDAR utilisés (TLS et MLS): donc pour
-quelques positions avec une diffusion dans un système de coordonnée
-radial, ou avec une diffusion organisée selon des vecteurs
-scanner-objet sur un trajectoire connue.
+Several elements must be defined in order to estimate the PAD using
+\cite{pimont2019}'s mathematical framework. The input of the system is
+point clouds. Point clouds can be thought of as a collection of
+cartesian coordinates with associated values. These values vary on the
+device used for acquiring the data, we can usually find the intensity
+of the return, the point classification, GPS time and many more. These
+point clouds are stored in files of varying format. Many laser scanner
+manufacturer provides their own proprietary file format, making it
+quite difficult to handle them all. The open-source community came up
+with a library called \cite{pdal2022} to solve this issue. It can be
+used an abstraction layer to load any point cloud files into memory
+with the correct representation of the point data. Although many file
+formats exist, the American Society for Photogrammetry and Remote
+Sensing (ASPRS) standardized the \texttt{las} file format, an open
+format which is widely used in the lidar community.
+
+The cartesian coordinates of the points are relative to the scanner's
+position. These coordinates can then later be georeferenced so that
+they are no longer relative, but rather aligned with a geographic
+coordinate system. Altough, when combining multiple point clouds into
+one, this often not accurate enough when using high precision
+lidars. This is why when acquiring data for multiple scans, operators
+are required to use markers made for that specific purpose. These
+markers can be spheres made of highly reflective material placed on
+tripod that are placed when acquiring the data. Afterwards, as a
+post-processing step, it is then possible to correctly align the point
+clouds to a specific central coordinate based on the position of the
+markers for all these scans. Because of those transformations on the
+point clouds, it's then possible for the scanner's position inside the
+point cloud to not be centered at the origin of the cartesian
+coordinate. Most point cloud file formats don't store the information
+on the scanner's position, it's then necessary to keep this
+information as metadata for the point cloud of interest in another
+place.
+
+However, this issue is only related to TLS. MLS, in counterpart, uses
+their internal SLAM algorithm to align all the points to a single
+point cloud. The only requirement being that the operator uses a
+technique called <<loop closure>>, where they must return to the exact
+location where they started acquiring data. When using those scanners,
+the devices produce two point clouds, one for the scene and one for
+the trajectory that the operator took inside that point cloud.
+
+% Décrire la géométrie de 2 LiDAR utilisés (TLS et MLS): donc pour
+% quelques positions avec une diffusion dans un système de coordonnée
+% radial, ou avec une diffusion organisée selon des vecteurs
+% scanner-objet sur un trajectoire connue.
 
 \subsection{Inclure ici l’importance du RDI}
 Décrire les fondements du RDI et souligner comment Durrieu et
