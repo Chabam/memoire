@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{amsmath}
 
 \title{Improvements over LVox: an algorithm for estimating forest
   plot's biomass using point clouds}
@@ -205,11 +206,12 @@ place.
 
 However, this issue is only related to TLS. MLS, in counterpart, uses
 their internal SLAM algorithm to align all the points to a single
-point cloud. The only requirement being that the operator uses a
-technique called <<loop closure>>, where they must return to the exact
-location where they started acquiring data. When using those scanners,
-the devices produce two point clouds, one for the scene and one for
-the trajectory that the operator took inside that point cloud.
+point cloud. The only requirement being that the operator start and
+finish their data acquisition at the same location, so that a
+technique called <<loop closure>> can be used to account for the point
+drift. When using those scanners, the devices then produce two point
+clouds, one for the scene and one for the trajectory that the operator
+took inside of it.
 
 % Décrire la géométrie de 2 LiDAR utilisés (TLS et MLS): donc pour
 % quelques positions avec une diffusion dans un système de coordonnée
@@ -217,9 +219,89 @@ the trajectory that the operator took inside that point cloud.
 % scanner-objet sur un trajectoire connue.
 
 \subsection{Inclure ici l’importance du RDI}
-Décrire les fondements du RDI et souligner comment Durrieu et
-al. (2007) on démontré comment ceci débiaise pour les effets de
-l’occlusion
+
+When seeking to do estimation that accounts for occulusion when using
+precise lidars like TLS and MLS, an approach can be to compute the
+relative density index (RDI). This was first introduced by
+\cite{durrieu2008} where a spherical voxel system was used. The idea
+behind this approach is to discretize the space into a grid of voxels
+and then look at the individual voxel to see how they were explored by
+laser beams emitted from a laser scanner. The number of beams are
+categorized into three categories: beams that were intercepted before
+the voxel ($N_b$), beams that went through the voxel without being
+intercepted ($N_t$) and finally beams that were intercepted inside the
+voxel ($N_i$). With each of those beams accounted for a voxel, the
+following formula can be used to obtain the RDI for it:
+\begin{equation}
+RDI = \frac{N_i}{N_i + N_b + N_t}
+  \label{eq:rdi}
+\end{equation}
+
+Because it accounts for the total number of beams that reached the
+voxel in contrast to how many beams were succesful at hitting
+vegetation elements, it helps to reduce the contribution of highly
+explored voxels with a low number of beams that did hit scene
+elements. Invertly, it increases the contribution of highly occluded
+voxels with some beams that hit vegetation elements.
+
+Creating a voxel grid from a point cloud is trivial. The first step is
+to find the bounding box that will contain all the points. To do that,
+the lowest and heighest coordinate value for each dimension needs to
+be found by looking at the coordinate value of each point. When
+working with multiple point clouds of the same scene, all the points
+of all the point clouds are also accounted for to have a compatible
+bounds. Once these values are found, a box can be constructed by
+combining them appropriately for each dimension. This box can then be
+divided equally into increment of a predefined voxel size. For LVox,
+this is a parameter that is provided by the user. We decided to use
+voxels where each side is of equal lengths, because we found that the
+additionnal flexibility did not offer better results, it is also
+easier to process the result afterwards.
+
+To compute the different beam categories, the path the beam took must
+be recreated virtually from the information that we have from the
+point cloud. A laser beams can be thought as an origin point with a
+direction. For the purpose of the estimation within the grid, we can
+assume that they have a finite range that is entirely contained inside
+the bounding box of the scene. The origin point of the beams will
+depend on the scanner type. For TLS, it is the position of the device
+within the point cloud. In most cases, that is the origin since the
+points coordinates are relative the scanner. When working with
+multiple scans of the same scene, the relative position of the scanner
+inside the aligned point cloud is used instead. This means, each
+points in a TLS point cloud has an origin point, which is the position
+of the scanner itself. For MLS, since a trajectory is produced as a
+by-product of the data acquisiton, it is used as a reference for the
+beam's origin. Potentially, every point in those point clouds can have
+a different origin along the trajectory. To find the correct one, the
+associated gps time for a given point is matched against the
+trajectory to find which point inside trajectory's point cloud
+corresponds. If no trajectory's point matches for certain point in the
+point cloud, a new one is generated by interpolating between the two
+closest points. With an origin and a point from a point cloud, it is
+then possible to create a vector between those two points that will
+serve as the direction of the beam.
+
+Since the beam and voxel count can both be very large, checking every
+beam against every voxel for intersections would be greatly
+inefficient. Thankfully, there exists highly efficient algorithms that
+can find beam's intersections given a uniform grid of voxels, such as
+\cite{amanatides1987}. This algorithm will produce a list of all the
+explored voxels along a ray with only three floating operations per
+intersection. This is, by far, the most computationally intensive part
+of the estimation, because this process must be applied for every
+point in the point cloud which can be in the hundred of millions. When
+producing an intersection, we can also categorize the beam that
+produces it. For instance, if the point the beam is reaching is
+contained inside the voxel that intersects, it can be categorized as
+the $N_i$ value that was presented in the RDI equation
+\eqref{eq:rdi}. Likewise, if the point is not contained in the
+intersection, we can categorize the beam as $N_t$ if the point is not
+yet reached, or as $N_b$ if it was.
+
+% Décrire les fondements du RDI et souligner comment Durrieu et
+% al. (2007) on démontré comment ceci débiaise pour les effets de
+% l’occlusion
 
 \subsection{Comment on passe du RDI au PAD}
 Cadre mathématique de Pimont et al. et de Soma et al.
