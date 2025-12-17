@@ -1,5 +1,5 @@
-* Rencontre écrite mémoire
-<2025-11-06 Thu>
+* Rencontre écrite mémoire <2025-11-06 Thu>
+
 - Parler du ALS vs. MLS
 - Permet de voir en 3D
 - Occlusion, divergence
@@ -7,3 +7,57 @@
   - AmapVox, LVox 1, lidR
   - Voxel sphérique
 - Raster 3D
+
+* Plan écriture <2025-12-17 Wed>
+
+** Intro
+- Importance lidar forêt
+- ALS
+- Usage exploratoire TLS-MLS
+- Qu'est-ce que ça (TLS-MLS) peut faire
+- Les limites du lidar
+  - Occulusion
+  - Divergence
+  - Vent
+  - Positionnement
+- Nuage de points ≠ distribution biomasse
+- But: outils pour la distribution 3d de la végétation
+
+** Related Works
+- Cadre mathématique pour calcul non-biaisé du PAD à d'un nuage de
+  points
+- LidarForFuel
+- LVox1
+  - Fonctionnement général (nguyen et al.)
+  - Limites
+    - Work flow
+    - Interopérabilité
+    - Efficacité calcul
+    - Gestion des entrées-sorties
+    - Visualisation
+- AmapVox
+
+** Methods
+
+*** Work flow
+*** Interopérabilité
+*** Efficacité calcul
+*** Gestion des entrées-sorties
+*** Visualisation
+
+** Résultats
+- Comparaison des temps de calculs et mémoire
+- Taille et format des fichiers
+
+** Discussion
+
+*** Questions pratiques
+- Sépartion tronc
+
+*** Questions de recherche
+- Sparse Voxel Octree avec tracé de rayon
+- Support de l'ALS et ULS
+
+*** Questions informatique
+- LAD séparation
+
