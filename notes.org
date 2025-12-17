@@ -46,8 +46,13 @@
 *** Visualisation
 
 ** Résultats
+- TLS vs. MLS
+- Dimension voxels
+- Taille des fichiers d'entrées
+- Test sur 98 placettes
 - Comparaison des temps de calculs et mémoire
 - Taille et format des fichiers
+- Script d'Anthony (validation avec les placettes virtuelles)
 
 ** Discussion
 
@@ -57,6 +62,7 @@
 *** Questions de recherche
 - Sparse Voxel Octree avec tracé de rayon
 - Support de l'ALS et ULS
+- Métriques
 
 *** Questions informatique
 - LAD séparation
